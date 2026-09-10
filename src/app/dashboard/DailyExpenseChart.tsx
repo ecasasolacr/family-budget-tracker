@@ -68,7 +68,7 @@ export function DailyExpenseChart({ data }: { data: DailyData[] }) {
                 return label;
               }
             }}
-            formatter={(value: number) => [formatCurrency(value), 'Gastado']}
+            formatter={(value: any) => [formatCurrency(Number(value) || 0), 'Gastado']}
           />
           <Bar 
             dataKey="amount" 
