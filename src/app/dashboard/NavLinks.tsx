@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { LayoutDashboard, Tags, PiggyBank, Receipt, Hash, Repeat, Target } from 'lucide-react'
+import { LayoutDashboard, Tags, PiggyBank, Receipt, Hash, Repeat, Target, Settings } from 'lucide-react'
 
 export function NavLinks() {
   const pathname = usePathname()
@@ -22,6 +22,7 @@ export function NavLinks() {
     { href: '/dashboard/goals', label: 'Metas', icon: Target },
     { href: '/dashboard/tags', label: 'Etiquetas', icon: Hash },
     { href: '/dashboard/subscriptions', label: 'Suscripciones', icon: Repeat },
+    { href: '/dashboard/settings', label: 'Configuración', icon: Settings },
   ]
 
   return (
