@@ -17,11 +17,15 @@ export default async function DashboardLayout({
   if (!user) redirect('/login')
 
   // Check if user has a family
-  const { data: familyMembers } = await supabase
+  const { data: familyMembers, error: familyMembersError } = await supabase
     .from('family_members')
     .select('family_id')
     .eq('user_id', user.id)
     .limit(1)
+
+  if (familyMembersError) {
+    console.error('Error fetching familyMembers in layout:', familyMembersError)
+  }
 
   if (!familyMembers || familyMembers.length === 0) {
     redirect('/onboarding')
@@ -79,4 +83,3 @@ export default async function DashboardLayout({
     </div>
   )
 }
-

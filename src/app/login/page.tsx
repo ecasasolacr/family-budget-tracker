@@ -3,12 +3,20 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
 
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ message?: string; returnTo?: string }>
 }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    redirect('/dashboard')
+  }
+
   const params = await searchParams
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">

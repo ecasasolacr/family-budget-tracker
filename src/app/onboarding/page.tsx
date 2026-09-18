@@ -25,6 +25,19 @@ export default async function OnboardingPage({
     }
   }
 
+  // Check if user already has a family
+  const { data: familyMembers } = await supabase
+    .from('family_members')
+    .select('family_id')
+    .eq('user_id', user.id)
+    .limit(1)
+
+  // If the user already has a family and is not trying to join one with an invite code, redirect to dashboard.
+  // We can even redirect them if they have an invite code, since strict multi-tenancy says 1 family per user.
+  if (familyMembers && familyMembers.length > 0) {
+    redirect('/dashboard')
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
       <div className="w-full max-w-md space-y-6">
