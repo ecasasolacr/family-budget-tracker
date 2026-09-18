@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Edit2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { deleteExpense } from './actions'
 import { formatCurrency } from '@/utils/format'
 import { CategoryIcon } from '@/components/ui/category-icon'
+import { EditExpenseDialog } from './EditExpenseDialog'
 
 type Expense = {
   id: string
@@ -15,6 +16,7 @@ type Expense = {
   date: string
   description: string | null
   categories: {
+    id: string
     name: string
     icon: string | null
     color: string | null
@@ -31,8 +33,9 @@ type Expense = {
   }[]
 }
 
-export function ExpenseList({ expenses }: { expenses: any[] }) {
+export function ExpenseList({ expenses, categories, tags }: { expenses: any[], categories?: any[], tags?: any[] }) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
 
   async function handleDelete(id: string) {
     if (!confirm('¿Estás seguro de eliminar este gasto?')) return
@@ -105,18 +108,39 @@ export function ExpenseList({ expenses }: { expenses: any[] }) {
             <div className="font-bold text-lg text-slate-900 dark:text-slate-100">
               {formatCurrency(expense.amount)}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-slate-400 hover:text-red-500"
-              disabled={deletingId === expense.id}
-              onClick={() => handleDelete(expense.id)}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-slate-400 hover:text-blue-500"
+                onClick={() => setEditingExpense(expense)}
+              >
+                <Edit2 className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-slate-400 hover:text-red-500"
+                disabled={deletingId === expense.id}
+                onClick={() => handleDelete(expense.id)}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       ))}
+
+      {editingExpense && (
+        <EditExpenseDialog 
+          expense={editingExpense} 
+          categories={categories || []} 
+          tags={tags || []}
+          open={!!editingExpense}
+          onOpenChange={(open) => !open && setEditingExpense(null)}
+          onSuccess={() => setEditingExpense(null)}
+        />
+      )}
     </div>
   )
 }

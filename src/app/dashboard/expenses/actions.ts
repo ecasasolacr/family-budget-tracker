@@ -85,3 +85,54 @@ export async function deleteExpense(id: string) {
   revalidatePath('/dashboard')
   return { success: true }
 }
+
+export async function updateExpense(formData: FormData) {
+  const supabase = await createClient()
+  
+  const id = formData.get('id') as string
+  const category_id = formData.get('category_id') as string
+  const amountStr = formData.get('amount') as string
+  const date = formData.get('date') as string
+  const description = formData.get('description') as string
+
+  const tagsStr = formData.get('tags') as string
+  const tags = tagsStr ? tagsStr.split(',').filter(Boolean) : []
+
+  // Convert amount to cents
+  const amount = Math.round(parseFloat(amountStr) * 100)
+
+  const { error } = await supabase
+    .from('expenses')
+    .update({
+      category_id,
+      amount,
+      date,
+      description
+    })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error updating expense:', error)
+    return { error: 'Error al actualizar el gasto' }
+  }
+
+  // Update tags: delete old ones, insert new ones
+  await supabase
+    .from('expense_tags')
+    .delete()
+    .eq('expense_id', id)
+
+  if (tags.length > 0) {
+    const expenseTags = tags.map(tag_id => ({
+      expense_id: id,
+      tag_id
+    }))
+    
+    await supabase
+      .from('expense_tags')
+      .insert(expenseTags)
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}

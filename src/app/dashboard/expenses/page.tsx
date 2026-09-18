@@ -23,6 +23,7 @@ export default async function ExpensesPage(props: { searchParams: Promise<{ mont
       date,
       description,
       categories (
+        id,
         name,
         icon,
         color
@@ -43,6 +44,17 @@ export default async function ExpensesPage(props: { searchParams: Promise<{ mont
     .order('date', { ascending: false })
     .order('created_at', { ascending: false })
 
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('id, name, icon, color')
+    .eq('is_active', true)
+    .order('name')
+
+  const { data: tags } = await supabase
+    .from('tags')
+    .select('id, name, color')
+    .order('name')
+
   return (
     <div className="space-y-6">
       <div>
@@ -58,7 +70,11 @@ export default async function ExpensesPage(props: { searchParams: Promise<{ mont
           <CardDescription>Visualiza y administra los gastos recientes.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ExpenseList expenses={expenses || []} />
+          <ExpenseList 
+            expenses={expenses || []} 
+            categories={categories || []}
+            tags={tags || []}
+          />
         </CardContent>
       </Card>
     </div>
