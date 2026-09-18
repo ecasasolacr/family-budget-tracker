@@ -15,11 +15,15 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    redirect('/login?message=Error al iniciar sesión. Revisa tus credenciales.')
+    const returnToParam = formData.get('returnTo') ? `&returnTo=${encodeURIComponent(formData.get('returnTo') as string)}` : ''
+    redirect(`/login?message=Error al iniciar sesión. Revisa tus credenciales.${returnToParam}`)
   }
 
+  const returnTo = formData.get('returnTo') as string
+  const destination = returnTo || '/dashboard'
+
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  redirect(destination)
 }
 
 export async function signup(formData: FormData) {
@@ -33,12 +37,16 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp(data)
 
   if (error) {
-    redirect('/login?message=No se pudo crear la cuenta. ' + error.message)
+    const returnToParam = formData.get('returnTo') ? `&returnTo=${encodeURIComponent(formData.get('returnTo') as string)}` : ''
+    redirect(`/login?message=No se pudo crear la cuenta. ${error.message}${returnToParam}`)
   }
 
   // Auto-login since the user is auto-confirmed by the trigger
   await supabase.auth.signInWithPassword(data)
   
+  const returnTo = formData.get('returnTo') as string
+  const destination = returnTo || '/dashboard'
+
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  redirect(destination)
 }

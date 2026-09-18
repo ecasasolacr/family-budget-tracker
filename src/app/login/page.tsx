@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message: string }>
+  searchParams: Promise<{ message?: string; returnTo?: string }>
 }) {
   const params = await searchParams
   return (
@@ -23,6 +23,7 @@ export default async function LoginPage({
         </CardHeader>
         <CardContent>
           <form className="space-y-4">
+            <input type="hidden" name="returnTo" value={params?.returnTo || ''} />
             <div className="space-y-2">
               <Label htmlFor="email">Correo Electrónico</Label>
               <Input 

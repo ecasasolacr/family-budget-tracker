@@ -3,13 +3,28 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
 
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message: string }>
+  searchParams: Promise<{ message?: string; inviteCode?: string }>
 }) {
   const params = await searchParams
+  
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    if (params?.inviteCode) {
+      const returnTo = encodeURIComponent(`/onboarding?inviteCode=${params.inviteCode}`)
+      redirect(`/login?returnTo=${returnTo}`)
+    } else {
+      redirect('/login')
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
       <div className="w-full max-w-md space-y-6">
@@ -20,7 +35,9 @@ export default async function OnboardingPage({
           </div>
         )}
 
-        <Card className="shadow-lg border-0 ring-1 ring-slate-200 dark:ring-slate-800">
+        {!params?.inviteCode && (
+          <>
+            <Card className="shadow-lg border-0 ring-1 ring-slate-200 dark:ring-slate-800">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-emerald-600 dark:text-emerald-500">
               Crear una Familia
@@ -47,10 +64,11 @@ export default async function OnboardingPage({
             </form>
           </CardContent>
         </Card>
-
-        <div className="text-center text-sm text-slate-500">
-          — o —
-        </div>
+          <div className="text-center text-sm text-slate-500">
+            — o —
+          </div>
+        </>
+        )}
 
         <Card className="shadow-lg border-0 ring-1 ring-slate-200 dark:ring-slate-800">
           <CardHeader className="space-y-1">
@@ -70,6 +88,7 @@ export default async function OnboardingPage({
                   name="inviteCode" 
                   required 
                   placeholder="Código..." 
+                  defaultValue={params?.inviteCode || ''}
                   className="focus-visible:ring-emerald-500"
                 />
               </div>
